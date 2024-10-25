@@ -7,3 +7,5 @@ class Ramo(BaseModel):
 class Rate(BaseModel):
     ramo_id: str
     rating: str
+
+#User
