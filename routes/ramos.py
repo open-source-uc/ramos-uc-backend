@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from database.database import ramos_collection, ratings_collection
-from database.schemas import Ramo, Rate
+from database.schemas import Ramo, Rate, User
 from bson import ObjectId
 
 router = APIRouter()
@@ -60,3 +60,7 @@ async def get_ramo_rates(ramo_id: str):
         "regular_rates": regular_rates,
         "bad_rates": bad_rates
     })
+
+@router.post("/register/")
+async def create_user(user: User):
+    pass
