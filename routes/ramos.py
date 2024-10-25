@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from database.database import ramos_collection, ratings_collection, users_collection
 from database.schemas import Ramo, Rate, User
+import bcrypt
 from bson import ObjectId
 
 router = APIRouter()
@@ -64,16 +65,15 @@ async def get_ramo_rates(ramo_id: str):
 @router.post("/register/")
 async def create_user(user: User, response_class=JSONResponse):
     #revisar si el usuario/email ya existe
-    usuario_existente = users_collection.find_one({"$or": [{"username": user.username}, {"email": user.email}]})
+    usuario_existente = users_collection.find_one({"$or": [{"username": user.username},
+                                                            {"email": user.email}]})
     if usuario_existente:
         raise HTTPException(status_code=400, detail="Usuario/Email ya registrado")
     #hashear contraseña
-    #hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
-
-    # Create the user in the database
-    #user_data = user.dict()
-    #user_data['password'] = hashed_password  # Replace the password with the hashed version
-    #result = users_collection.insert_one(user_data)
-
-    #return JSONResponse(content={"id": str(result.inserted_id), "username": user.username, "email": user.email}, status_code=201)
-    pass
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+    #crear usuario
+    user_data = user.dict()
+    user_data['password'] = hashed_password  #Reemplazar contraseña con la hasheada
+    result = users_collection.insert_one(user_data)
+    return JSONResponse(content={"id": str(result.inserted_id), "username": user.username, 
+                                 "email": user.email}, status_code=201)
