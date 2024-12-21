@@ -13,7 +13,7 @@ async def hello_world():
 
 
 @router.get("/ramos_global", response_class=JSONResponse)
-async def hello_world(
+async def get_ramos_global(
     id: Optional[str] = Query(None),
     sigle: Optional[str] = Query(None), 
     name: Optional[str] = Query(None), 
