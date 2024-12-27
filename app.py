@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from routes import ramos
+from routes import ramos_global
 
 app = FastAPI()
 
-app.include_router(ramos.router)
+app.include_router(ramos_global.router)
