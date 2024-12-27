@@ -9,4 +9,6 @@ class Ramo(BaseModel):
 
 class Rate(BaseModel):
     ramo_id: str
-    rating: str
+    rating: bool #Booleano para que sea como bueno o malo despues se sacan los promedios
+    comment: str #Maybe agruegar longitud maxima dsp
+    user_id: str #Esto para identificar de que cuenta es cada comentario moderación etc
