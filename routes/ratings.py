@@ -1,47 +1,52 @@
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
-from database.database import ramos_collection, ratings_collection
-from database.schemas import Rate
+from database.database import ramos_collection
+from database.schemas import Rate, Ramo
 from bson import ObjectId
 
 router = APIRouter()
 
-@router.post("/ratings", response_model=Rate)
-async def create_rating(rating: Rate): #Hay que añadir para verificar si un usuario ya hizo el rating
-    ramo = ramos_collection.find_one({"_id": ObjectId(rating.ramo_id)})
+@router.post("/ratings/{ramo_id}")
+async def create_rating(ramo_id: str, rating: Rate): #Hay que añadir para verificar si un usuario ya hizo el rating
+    ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
     if not ramo:
         raise HTTPException(status_code=404, detail="Ramo not found")
     
-    rating_dict = rating.dict()
-    result = ratings_collection.insert_one(rating_dict)
+    rating_dict = dict(rating)
+
+    # Asegurarse de que 'reviews' existe y es una lista, si no es así, inicializarla
+    if 'reviews' not in ramo:
+        ramo['reviews'] = []
+
+    if rating.rating is True:
+        ramo["positive_count"] = ramo.get("positive_count", 0) + 1
+    else:
+        ramo["negative_count"] = ramo.get("negative_count", 0) + 1
+
+    # Agregar la nueva reseña al campo 'reviews'
+    ramo['reviews'].append(rating_dict)
+
+    # Guardar los cambios en la base de datos
+    ramos_collection.update_one(
+        {"_id": ObjectId(ramo_id)},
+        {"$set": {"reviews": ramo['reviews'], "positive_count": ramo.get("positive_count", 0), "negative_count": ramo.get("negative_count", 0) }}
+    )
+
     
     return {
-        "id": str(result.inserted_id),
-        **rating_dict
+        "id": str(ramo["_id"]), 
+        "reviews": ramo['reviews']
     }
 
 @router.get("/ratings/{ramo_id}", response_model=List[Rate])
 async def get_ramo_ratings(ramo_id: str): #Agregar un sistema de paginacion maybe
-    ratings = list(ratings_collection.find({"ramo_id": ramo_id}))
+    ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
+    ratings = ramo.get("reviews", [])
     return [
         {
-            "id": str(rating["_id"]),
+            "ramo_id": str(ramo["_id"]),
             **{k: v for k, v in rating.items() if k != "_id"}
         }
         for rating in ratings
     ]
-
-# Agregar endpoint para estadísticas
-@router.get("/ratings/stats/{ramo_id}")
-async def get_rating_stats(ramo_id: str):
-    ratings = list(ratings_collection.find({"ramo_id": ramo_id}))
-    
-    positive_count = sum(1 for r in ratings if r["rating"])
-    total_ratings = len(ratings)
-    
-    return {
-        "positive_count": positive_count,
-        "negative_count": total_ratings - positive_count,
-        "total_ratings": total_ratings
-    }

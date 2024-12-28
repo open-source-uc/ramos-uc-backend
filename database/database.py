@@ -13,4 +13,4 @@ assert MONGO_DB_URI is not None, "MONGO_DB_URI is not set"
 client = MongoClient(MONGO_DB_URI)
 db = client[MONGO_DB_NAME]
 ramos_collection = db["ramos"]
-ratings_collection = db["ratings"]
+# ratings_collection = db["ratings"]
