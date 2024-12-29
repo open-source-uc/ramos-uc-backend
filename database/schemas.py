@@ -69,6 +69,7 @@ class Rate(BaseModel):
     semestre: int | str
     user_id: Any  # ID del usuario que dejó la reseña
     creditos_presuntos: int # Los creditos que pensas que valen x ejemplo BBDD vale 10 pero es como 30
+    state: bool
     @field_validator('semestre')
     def validate_semestre(cls, value):
         if value in ["TAV", 1, 2]:
