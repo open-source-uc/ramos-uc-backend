@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from database.database import accounts_collection
 from database.schemas import User
 from utils.auth.encrypt import encriptar_password, validacion_password
+from utils.auth.token import generar_token
 import re
 
 router = APIRouter()
@@ -28,21 +29,21 @@ async def create_usr(account: User):
         raise HTTPException(detail=', '.join(errores), status_code=400)
     #No hay molleha (monejo code)
 
-    print("e")
     hashed_password = encriptar_password(account.password)
-    print("h")
     account.password = hashed_password
-    print("agregar")
-    accounts_collection.insert_one(account.model_dump())
-    print("l")
-    return JSONResponse({"message": "Ok"})
+    result = accounts_collection.insert_one(account.model_dump())
+
+    token = generar_token(str(result.inserted_id))
+    return JSONResponse({"message": "Ok", "token": token, "name": account.name})
 
 @router.post("/accounts/login")
 async def login_usr(email: str = Body(...), password: str = Body(...)):
     account = accounts_collection.find_one({"email": email})
     if not account:
         raise HTTPException(detail="Usuario no existe", status_code=404)
+    user_id = account["_id"]
     account = User(**account)
     if not validacion_password(password, account.password):
         raise HTTPException(detail="La contraseña no es correcta", status_code=401)
-    return JSONResponse({"message": "Ok"})
+    token = generar_token(str(user_id))
+    return JSONResponse({"message": "Ok", "token": token, "name": account.name})

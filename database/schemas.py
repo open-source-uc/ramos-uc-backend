@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator, EmailStr, Field
 from typing import List
+from typing import Any
 
 carreras = [
   "Actuación",
@@ -66,7 +67,7 @@ class Rate(BaseModel):
     profesor: str
     year: int
     semestre: int | str
-    user_id: str  # ID del usuario que dejó la reseña
+    user_id: Any  # ID del usuario que dejó la reseña
     creditos_presuntos: int # Los creditos que pensas que valen x ejemplo BBDD vale 10 pero es como 30
     @field_validator('semestre')
     def validate_semestre(cls, value):
@@ -108,3 +109,8 @@ class User(BaseModel):
         if career not in carreras:
             raise ValueError('Carrera inválida')
         return career
+    @field_validator('name')
+    def check_name(cls, name: str):
+        if len(name) < 3:
+            raise ValueError('El nombre tiene que tener más de 3 caracteres')
+        return name
