@@ -3,8 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 from database.database import accounts_collection
 from database.schemas import User
-from bson import ObjectId
-from lib.auth.encrypt import encriptar_password, validacion_password
+from utils.auth.encrypt import encriptar_password, validacion_password
 import re
 
 router = APIRouter()
