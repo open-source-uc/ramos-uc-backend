@@ -1,9 +1,8 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
-from database.database import ramos_collection, accounts_collection
-from database.schemas import Ramo, Rate
-from bson import ObjectId
+from database.database import ramos_collection
+from database.schemas import Ramo
 
 router = APIRouter()
 
@@ -12,7 +11,7 @@ async def hello_world():
     return JSONResponse(content={"message": "Hello, World!"})
 
 
-@router.get("/ramos_global", response_class=JSONResponse)
+@router.get("/ramos_global", response_class=JSONResponse, response_model=Ramo)
 async def get_ramos_global(
     id: Optional[str] = Query(None),
     sigle: Optional[str] = Query(None), 
