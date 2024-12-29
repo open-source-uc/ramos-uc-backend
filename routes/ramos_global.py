@@ -1,9 +1,8 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 from database.database import ramos_collection
-from database.schemas import Ramo, Rate
-from bson import ObjectId
+from database.schemas import Ramo
 
 router = APIRouter()
 

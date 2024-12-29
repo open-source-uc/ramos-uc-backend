@@ -1,52 +1,48 @@
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Cookie
 from fastapi.responses import JSONResponse
-from database.database import ramos_collection
+from database.database import ramos_collection, accounts_collection
 from database.schemas import Rate, Ramo
+from fastapi.security import OAuth2PasswordBearer
+from utils.auth.token import Payload, proteger
 from bson import ObjectId
 
 router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="ramosuc_token")
+
 
 @router.post("/ratings/{ramo_id}")
-async def create_rating(ramo_id: str, rating: Rate): #Hay que añadir para verificar si un usuario ya hizo el rating
+async def create_rating(ramo_id: str, rating: Rate, payload: Payload = Depends(proteger)): #Hay que añadir para verificar si un usuario ya hizo el rating
+
     ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
     if not ramo:
         raise HTTPException(status_code=404, detail="Ramo not found")
     
-    rating_dict = dict(rating)
-
-    # Asegurarse de que 'reviews' existe y es una lista, si no es así, inicializarla
-    if 'reviews' not in ramo:
-        ramo['reviews'] = []
+    ramo = Ramo(**ramo)
+    rating.user_id = payload.user_id
 
     if rating.rating is True:
-        ramo["positive_count"] = ramo.get("positive_count", 0) + 1
+        ramo.positive_count = ramo.positive_count + 1
     else:
-        ramo["negative_count"] = ramo.get("negative_count", 0) + 1
+        ramo.negative_count = ramo.negative_count + 1
 
     # Agregar la nueva reseña al campo 'reviews'
-    ramo['reviews'].append(rating_dict)
-
+    for review in ramo.reviews:
+        if review.user_id == payload.user_id:
+            raise HTTPException(status_code=409, detail="Ya comentaste en este curso")
+    ramo.reviews.append(rating)
     # Guardar los cambios en la base de datos
     ramos_collection.update_one(
         {"_id": ObjectId(ramo_id)},
-        {"$set": {"reviews": ramo['reviews'], "positive_count": ramo.get("positive_count", 0), "negative_count": ramo.get("negative_count", 0) }}
+        {"$set": {"reviews": list(map(lambda review: review.model_dump(), ramo.reviews)), "positive_count": ramo.positive_count, "negative_count": ramo.negative_count }}
     )
 
     
-    return {
-        "id": str(ramo["_id"]), 
-        "reviews": ramo['reviews']
-    }
+    return JSONResponse(content={"message": "ok"}, status_code=200)
 
 @router.get("/ratings/{ramo_id}", response_model=List[Rate])
 async def get_ramo_ratings(ramo_id: str): #Agregar un sistema de paginacion maybe
     ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
-    ratings = ramo.get("reviews", [])
-    return [
-        {
-            "ramo_id": str(ramo["_id"]),
-            **{k: v for k, v in rating.items() if k != "_id"}
-        }
-        for rating in ratings
-    ]
+    result = list([ramo])
+    result = list(map(lambda r: {"id": str(r["_id"]), **{k: v for k, v in r.items() if k != '_id'}}, result))
+    return JSONResponse(content=result)
