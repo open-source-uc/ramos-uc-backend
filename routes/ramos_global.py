@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
-from database.database import ramos_collection, ratings_collection
+from database.database import ramos_collection, accounts_collection
 from database.schemas import Ramo, Rate
 from bson import ObjectId
 

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from random import randint
 
 class Ramo(BaseModel):
     sigle: str
@@ -10,3 +11,7 @@ class Ramo(BaseModel):
 class Rate(BaseModel):
     ramo_id: str
     rating: str
+
+class Login(BaseModel):
+    email: str
+    pswrd: str
