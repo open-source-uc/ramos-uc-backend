@@ -1,5 +1,5 @@
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import JSONResponse
 from database.database import accounts_collection
 from database.schemas import User
@@ -11,7 +11,7 @@ router = APIRouter()
 @router.post("/accounts/register")
 async def create_usr(account: User):
     if accounts_collection.find_one({"email": account.email}) is not None:
-        raise HTTPException("Usuario ya existente", status_code=409)
+        raise HTTPException(detail="Usuario ya existente", status_code=409)
     #No hay molleha (monejo code)
     errores = []
     if len(account.password) < 8:
@@ -25,19 +25,24 @@ async def create_usr(account: User):
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", account.password):  # Caracteres especiales
         errores.append('La contraseña debe contener al menos un carácter especial')
     if errores:
-        raise HTTPException(', '.join(errores), status_code=400)
+        raise HTTPException(detail=', '.join(errores), status_code=400)
     #No hay molleha (monejo code)
+
+    print("e")
     hashed_password = encriptar_password(account.password)
+    print("h")
     account.password = hashed_password
-    accounts_collection.insert_one(account)
+    print("agregar")
+    accounts_collection.insert_one(account.model_dump())
+    print("l")
     return JSONResponse({"message": "Ok"})
 
 @router.post("/accounts/login")
-async def login_usr(email: str, password: str):
+async def login_usr(email: str = Body(...), password: str = Body(...)):
     account = accounts_collection.find_one({"email": email})
     if not account:
-        raise HTTPException("Usuario no existe", status_code=404)
+        raise HTTPException(detail="Usuario no existe", status_code=404)
     account = User(**account)
     if not validacion_password(password, account.password):
-        raise HTTPException("La contraseña no es correcta", status_code=401)
+        raise HTTPException(detail="La contraseña no es correcta", status_code=401)
     return JSONResponse({"message": "Ok"})

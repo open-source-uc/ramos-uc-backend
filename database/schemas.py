@@ -91,20 +91,20 @@ class User(BaseModel):
     password: str
     name: str
     career: str
-    admission_year: str
+    admission_year: int
 
     @field_validator("admission_year")
-    def check_year(self, year: int):
+    def check_year(cls, year: int):
         if len(str(year)) != 4:
             raise ValueError("Año no corresponde")
         return year
     @field_validator('email')
-    def check_email_domain(self, email: EmailStr):
-        if not email.endswith('@uc.cl') or not email.endswith('@estudiante.uc.cl'):
+    def check_email_domain(cls, email: EmailStr):
+        if not (email.endswith('@uc.cl') or email.endswith('.uc.cl')):
             raise ValueError('Email Inválido. Tu email no es UC.')
         return email
     @field_validator('career')
-    def check_career(self, career: str):
+    def check_career(cls, career: str):
         if career not in carreras:
             raise ValueError('Carrera inválida')
         return career

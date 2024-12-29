@@ -42,11 +42,6 @@ async def create_rating(ramo_id: str, rating: Rate): #Hay que añadir para verif
 @router.get("/ratings/{ramo_id}", response_model=List[Rate])
 async def get_ramo_ratings(ramo_id: str): #Agregar un sistema de paginacion maybe
     ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
-    ratings = ramo.get("reviews", [])
-    return [
-        {
-            "ramo_id": str(ramo["_id"]),
-            **{k: v for k, v in rating.items() if k != "_id"}
-        }
-        for rating in ratings
-    ]
+    result = list([ramo])
+    result = list(map(lambda r: {"id": str(r["_id"]), **{k: v for k, v in r.items() if k != '_id'}}, result))
+    return JSONResponse(content=result)
