@@ -5,6 +5,7 @@ from database.database import ramos_collection, accounts_collection
 from database.schemas import Rate, Ramo
 from fastapi.security import OAuth2PasswordBearer
 from utils.auth.token import Payload, proteger
+from utils.AI_Mod import moderar_comentario
 from bson import ObjectId
 
 router = APIRouter()
@@ -12,9 +13,14 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="ramosuc_token")
 
 
 @router.post("/ratings/{ramo_id}")
-async def create_rating(ramo_id: str, rating: Rate, payload: Payload = Depends(proteger)): #Hay que añadir para verificar si un usuario ya hizo el rating
+async def create_rating(ramo_id: str, rating: Rate, payload: Payload = Depends(proteger)):
 
     ramo: Ramo = ramos_collection.find_one({"_id": ObjectId(ramo_id)})
+
+    moderacion_bool = moderar_comentario(rating.comment)
+    if moderacion_bool == False:
+        pass
+
     if not ramo:
         raise HTTPException(status_code=404, detail="Ramo not found")
     
