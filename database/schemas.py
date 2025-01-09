@@ -77,6 +77,12 @@ class Rate(BaseModel):
         else:
             raise ValueError(f"El valor numérico {value} no corresponde a un semestre válido.")
        
+class Section(BaseModel):
+    teacher: str
+    NRC: int
+    section_num: int
+    campus: str
+    places: int
 
 class Ramo(BaseModel):
     sigle: str
@@ -84,6 +90,7 @@ class Ramo(BaseModel):
     credits: int
     school: str
     area: str
+    section: Section
     reviews: List[Rate] = Field(default_factory=list)  # Lista de reseñas asociadas al ramo
     positive_count: int = 0
     negative_count: int = 0
