@@ -6,7 +6,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from fastapi import HTTPException, Depends, Header
 from fastapi.security import APIKeyHeader, APIKeyCookie
-from bson import ObjectId
 from pydantic import BaseModel
 
 load_dotenv()

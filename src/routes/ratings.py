@@ -2,7 +2,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Cookie
 from fastapi.responses import JSONResponse
 from database.database import ramos_collection, accounts_collection
-from database.schemas import Rate, Ramo
+from database.checks import Rate, Ramo
 from fastapi.security import OAuth2PasswordBearer
 from utils.auth.token import Payload, proteger
 from bson import ObjectId

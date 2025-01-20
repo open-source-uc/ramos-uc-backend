@@ -1,17 +1,18 @@
 version: '3.8'
 
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
+  postgres:
+    image: postgres:latest
+    container_name: postgres
     ports:
-      - "27017:27017"
+      - "7447:5432"
     volumes:
-      - mongodb_data:/data/db
+      - postgres_ramos_uc_backend:/var/lib/postgresql/data
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: 20242023
+      POSTGRES_DB: ramos-uc-nuevo
 
 volumes:
-  mongodb_data:
+  postgres_ramos_uc_backend:
     driver: local
