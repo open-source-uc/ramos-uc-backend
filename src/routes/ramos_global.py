@@ -2,7 +2,6 @@ from typing import Optional
 from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 from database.database import ramos_collection
-from database.checks import Ramo
 
 router = APIRouter()
 
