@@ -12,5 +12,9 @@ POSTGRES_PORT=7447
 ## Ejecución
 
 ```python
-python3 main.py
+python3 src/main.py
 ```
+
+## Privacidad
+
+RamosUC no guarda los correos electrónicos de los usuarios. En su lugar, almacena un hash SHA-256 de los correos para evitar la creación de cuentas duplicadas. De este modo, se garantiza que no se pueda conocer el correo ingresado en la plataforma, minimizando el riesgo de filtraciones o de recibir correos no deseados (spam) en el futuro.
