@@ -4,8 +4,17 @@ import routes.auth.route as auth
 import routes.reviews.route as reviews
 import routes.user.route as user
 from database.seed import seed_data
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite solicitudes desde estos orígenes
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos HTTP
+    allow_headers=["*"],  # Permite todos los encabezados
+)
 
 @app.on_event("startup")
 async def lifespan():
