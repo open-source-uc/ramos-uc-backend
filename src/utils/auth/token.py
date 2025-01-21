@@ -1,12 +1,13 @@
 import os
+from typing import List
 import jwt
 from dotenv import load_dotenv
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from fastapi import HTTPException, Depends, Header
-from fastapi.security import APIKeyHeader, APIKeyCookie
+from fastapi import HTTPException, Depends
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+from database.database import get_db, UserPermission
 
 load_dotenv()
 
@@ -36,17 +37,74 @@ def decode_token(token):
     return payload
 
 
-def proteger(
-    session: str | None = Depends(APIKeyCookie(name="session", auto_error=False)),
+def proteger_admin(
+    token: str | None = Depends(APIKeyHeader(name="token", auto_error=False)),
+    db: Session = Depends(get_db),
 ) -> Payload:
-    if session is None:
+    if token is None:
         raise HTTPException(401)
 
     try:
-        payload: dict = decode_token(session)
+        payload = decode_token(token)
 
         payload = Payload(
-            user_id=payload.get("user_id"),
+            user_id=payload["user_id"],
+        )
+
+    except HTTPException as error:
+        raise error
+    
+    permissions = db.query(UserPermission).filter(UserPermission.email_hash == payload.user_id).all()
+    permissions = [i.permission_name for i in permissions]
+
+    required_permissions = ["SUDO"]
+
+    for i in required_permissions:
+        if i not in permissions:
+            raise HTTPException(403, detail="Permission Denied")
+
+    return payload
+
+def proteger_user(
+    token: str | None = Depends(APIKeyHeader(name="token", auto_error=False)),
+    db: Session = Depends(get_db),
+) -> Payload:
+    if token is None:
+        raise HTTPException(401)
+
+    try:
+        payload = decode_token(token)
+
+        payload = Payload(
+            user_id=payload["user_id"],
+        )
+
+    except HTTPException as error:
+        raise error
+    
+    permissions = db.query(UserPermission).filter(UserPermission.email_hash == payload.user_id).all()
+    permissions = [i.permission_name for i in permissions]
+
+    required_permissions = ["CREATE_EDIT_OWN_REVIEW"]
+
+    for i in required_permissions:
+        if i not in permissions:
+            raise HTTPException(403, detail="Permission Denied")
+
+    return payload
+
+
+def proteger_only_token(
+    token: str | None = Depends(APIKeyHeader(name="token", auto_error=False)),
+) -> Payload:
+    if token is None:
+        raise HTTPException(401)
+
+    try:
+        payload = decode_token(token)
+
+        payload = Payload(
+            user_id=payload["user_id"],
         )
 
     except HTTPException as error:

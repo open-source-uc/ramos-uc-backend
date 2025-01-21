@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 import sqlalchemy
-from database.database import get_db, UserAccount
+from database.database import get_db, UserAccount, UserPermission
 from utils.auth.encrypt import encriptar_password, validacion_password, hash_text
 from utils.auth.token import generar_token
 from sqlalchemy.orm import Session
@@ -25,8 +25,13 @@ async def create_user(account: UserAccountCreate, db: Session = Depends(get_db))
         admision_year=account.admision_year,
         carrer_name=account.carrer_name,
     )
+    new_permision = UserPermission(
+        email_hash=email_hash,
+        permission_name="CREATE_EDIT_OWN_REVIEW"
+    )
     try:
         db.add(new_user)
+        db.add(new_permision)
         db.commit()
         token = generar_token(email_hash)
     except sqlalchemy.exc.IntegrityError as error:

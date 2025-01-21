@@ -1,5 +1,8 @@
 from fastapi import FastAPI
-from routes import login
+import routes.courses.route as courses
+import routes.auth.route as auth
+import routes.reviews.route as reviews
+import routes.user.route as user
 from database.seed import seed_data
 
 app = FastAPI()
@@ -11,8 +14,14 @@ async def lifespan():
 
 @app.get("/")
 async def read_root():
-    return {"message": "Hello, World!"}
+    return {"message": "Hello, World!", "version": "0.0.2"}
+# Router para autenticación
+app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
-app.include_router(login.router)
-# app.include_router(ramos_global.router)
-# app.include_router(ratings.router)
+# Router para cursos
+app.include_router(courses.router, prefix="/courses", tags=["courses"])
+
+# Router para reseñas
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
+
+app.include_router(user.router, prefix="/user", tags=["user"])

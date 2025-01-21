@@ -33,4 +33,14 @@ class UserAccountCreate(BaseModel):
             raise ValueError('Email no es de uc.cl')
         return v
 
+class UserAccountModify(BaseModel):
+    nickname: str = Field(..., max_length=100)  
+    admision_year: int  
+    carrer_name: str
 
+    @field_validator('admision_year')
+    def validate_admision_year(cls, v):
+        current_year = date.today().year
+        if not (current_year - 12 <= v <= current_year):
+            raise ValueError(f"El año de admisión debe estar entre {current_year - 12} y {current_year}.")
+        return v
