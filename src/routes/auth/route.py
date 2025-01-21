@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from utils.validators.auth import UserAccountCreate
 router = APIRouter()
 
-@router.post("/accounts/register")
+@router.post("/register")
 async def create_user(account: UserAccountCreate, db: Session = Depends(get_db)):
     email_hash = hash_text(account.email)
     existing_user = db.query(UserAccount).filter_by(email_hash=email_hash).first()
@@ -44,7 +44,7 @@ async def create_user(account: UserAccountCreate, db: Session = Depends(get_db))
     return JSONResponse({"msg": "ok", "token": token, "name": account.nickname})
 
 
-@router.post("/accounts/login")
+@router.post("/login")
 async def login_user(
     email: str = Body(..., embed=True),
     password: str = Body(..., embed=True),

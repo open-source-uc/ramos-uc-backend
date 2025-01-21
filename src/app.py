@@ -14,7 +14,7 @@ async def lifespan():
 
 @app.get("/")
 async def read_root():
-    return {"message": "Hello, World!", "version": "0.0.2"}
+    return {"message": "Hello, World!", "version": "0.0.3"}
 # Router para autenticación
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 

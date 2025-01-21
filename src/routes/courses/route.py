@@ -7,7 +7,7 @@ from sqlalchemy import func, case
 
 router = APIRouter()
 
-@router.get("/courses")
+@router.get("/")
 async def get_courses(
     page: int = Query(0),
     sigle: str = Query(None, description="Sigla del curso a filtrar"),

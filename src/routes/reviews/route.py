@@ -11,7 +11,7 @@ from utils.validators.reviews import ReviewCreate
 
 router = APIRouter()
 
-@router.get("/reviews/{sigle}")
+@router.get("/{sigle}")
 async def get_reviews(   
     sigle: str, 
     page: int = Query(0),
@@ -20,7 +20,7 @@ async def get_reviews(
     reviews = db.query(Review).filter_by(section_sigle=sigle, status='visible').offset(page * 100).limit(100).all()
     return reviews
 
-@router.post("/reviews")
+@router.post("/")
 async def create_review(   
     body: ReviewCreate,
     payload: Payload = Depends(proteger_user),
@@ -57,7 +57,7 @@ async def create_review(
 
     return JSONResponse({"msg": "ok"})
 
-@router.put("/reviews")
+@router.put("/")
 async def update_review(
     body: ReviewCreate,
     payload: Payload = Depends(proteger_user),
@@ -91,7 +91,7 @@ async def update_review(
 
     return JSONResponse({"msg": "Review updated"})
 
-@router.delete("/reviews/{sigle}")
+@router.delete("/{sigle}")
 async def delete_review(
     sigle: str,
     payload: Payload = Depends(proteger_user),
