@@ -33,6 +33,8 @@ async def get_courses(
         db.query(
             Course.sigle,
             Course.area,
+            Course.name,
+            Course.school,
             func.coalesce(
                 func.avg(
                     case(
@@ -54,7 +56,7 @@ async def get_courses(
         query = query.filter(func.upper(Course.area).startswith(area.upper()))
 
     query = (
-        query.group_by(Course.sigle, Course.area)
+        query.group_by(Course.sigle, Course.area, Course.name, Course.school)
         .order_by(
             func.coalesce(
                 func.avg(
@@ -75,11 +77,13 @@ async def get_courses(
     return {
         "msg": "ok",
         "courses": [{
-            "course": course, 
+            "sigle": sigle, 
+            "name": name, 
+            "school": school,
             "average_liked": avg_liked if avg_liked != 0 else None, 
             "average_estimated_credits": avg_credits if avg_credits != 0 else None,
             "area": area} 
-            for course, area, avg_liked, avg_credits in courses
+            for sigle, area, name, school, avg_liked, avg_credits in courses
         ]
     }
 
@@ -95,6 +99,8 @@ async def get_courses(
         db.query(
             Course.sigle,
             Course.area,
+            Course.name,
+            Course.school,
             func.coalesce(
                 func.avg(
                     case(
@@ -120,7 +126,7 @@ async def get_courses(
 
 
     query = (
-        query.group_by(Course.sigle, Course.area)
+        query.group_by(Course.sigle, Course.area, Course.name, Course.school)
         .order_by(
             func.coalesce(
                 func.avg(
@@ -140,10 +146,13 @@ async def get_courses(
     return {
         "msg": "ok",
         "courses": [{
-            "course": course, 
+            "sigle": sigle, 
+            "name": name, 
+            "school": school,
             "average_liked": avg_liked if avg_liked != 0 else None, 
             "average_estimated_credits": avg_credits if avg_credits != 0 else None,
             "area": area} 
-            for course, area, avg_liked, avg_credits in courses
+            for sigle, area, name, school, avg_liked, avg_credits in courses
         ]
     }
+

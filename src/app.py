@@ -3,6 +3,7 @@ import routes.courses.route as courses
 import routes.auth.route as auth
 import routes.reviews.route as reviews
 import routes.user.route as user
+import routes.carrer.route as carrer
 from database.seed import seed_data
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -24,7 +25,8 @@ async def lifespan():
 @app.get("/")
 async def read_root():
     return {"message": "Hello, World!", "version": "0.0.3"}
-# Router para autenticación
+app.include_router(carrer.router, prefix="/carrer", tags=["carrers"])
+
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 # Router para cursos
@@ -34,3 +36,4 @@ app.include_router(courses.router, prefix="/courses", tags=["courses"])
 app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 
 app.include_router(user.router, prefix="/user", tags=["user"])
+
